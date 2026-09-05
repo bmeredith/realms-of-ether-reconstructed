@@ -59,6 +59,7 @@ contract TroupStorage {
 
     function getName(bytes32 _troupHash) 
         public
+        view
         returns (bytes16)
     {
         require(exists[_troupHash]);
@@ -67,6 +68,7 @@ contract TroupStorage {
 
     function getStrength(bytes32 _troupHash) 
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -74,14 +76,15 @@ contract TroupStorage {
     }
 
     function getHash(uint256 _nonce) 
-        public 
+        public
+        view
         returns (bytes32)
     {
         return troupHashes[_nonce];
     }
 
     function setStone(bytes32 _troupHash, uint256 _amount)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);
@@ -89,7 +92,7 @@ contract TroupStorage {
     }
 
     function setGold(bytes32 _troupHash, uint256 _amount)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);
@@ -97,7 +100,7 @@ contract TroupStorage {
     }
 
     function setDexterity(bytes32 _troupHash, uint256 _amount)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);
@@ -106,6 +109,7 @@ contract TroupStorage {
 
     function getIntelligence(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -115,7 +119,7 @@ contract TroupStorage {
     /// @notice Registers a new troup hash. Must be called before any stats can be read or written.
     /// @dev Reverts if the hash is already registered.
     function createTroup(bytes32 _troupHash)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(!exists[_troupHash]);
@@ -126,6 +130,7 @@ contract TroupStorage {
 
     function getLife(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -134,6 +139,7 @@ contract TroupStorage {
 
     function getDexterity(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -141,7 +147,7 @@ contract TroupStorage {
     }
 
     function setWood(bytes32 _troupHash, uint256 _amount)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);
@@ -149,7 +155,7 @@ contract TroupStorage {
     }
 
     function setLife(bytes32 _troupHash, uint256 _amount)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);
@@ -158,6 +164,7 @@ contract TroupStorage {
 
     function getWood(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -166,6 +173,7 @@ contract TroupStorage {
 
     function getIndexLength()
         public
+        view
         returns (uint256)
     { 
         return troupHashes.length;
@@ -173,6 +181,7 @@ contract TroupStorage {
 
     function getStone(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -181,6 +190,7 @@ contract TroupStorage {
 
     function getGold(bytes32 _troupHash)
         public
+        view
         returns (uint256)
     { 
         require(exists[_troupHash]);
@@ -188,7 +198,7 @@ contract TroupStorage {
     }
 
     function transferOwnership(address newOwner) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(bool(newOwner != address(0x0)));
@@ -197,7 +207,7 @@ contract TroupStorage {
     }
 
     function setName(bytes32 _troupHash, bytes16 _name)
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_troupHash]);

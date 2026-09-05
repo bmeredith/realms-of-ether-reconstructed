@@ -10,15 +10,15 @@ interface IBuildingStorage {
     function setGold(bytes32 _buildingHash, uint256 _amount) external;
     function setWood(bytes32 _buildingHash, uint256 _amount) external;
     function setStone(bytes32 _buildingHash, uint256 _amount) external;
-    function getName(bytes32 _buildingHash) external returns (bytes16);
-    function getAction(bytes32 _buildingHash) external returns (uint256);
-    function getActionRate(bytes32 _buildingHash) external returns (uint256);
-    function getActionValue(bytes32 _buildingHash) external returns (bytes32);
-    function getActionTimeout(bytes32 _buildingHash) external returns (uint256);
-    function getGold(bytes32 _buildingHash) external returns (uint256);
-    function getWood(bytes32 _buildingHash) external returns (uint256);
-    function getStone(bytes32 _buildingHash) external returns (uint256);
-    function getHash(uint256 _nonce) external returns (bytes32);
-    function getIndexLength() external returns (uint256);
+    function getName(bytes32 _buildingHash) external view returns (bytes16);
+    function getAction(bytes32 _buildingHash) external view returns (uint256);
+    function getActionRate(bytes32 _buildingHash) external view returns (uint256);
+    function getActionValue(bytes32 _buildingHash) external view returns (bytes32);
+    function getActionTimeout(bytes32 _buildingHash) external view returns (uint256);
+    function getGold(bytes32 _buildingHash) external view returns (uint256);
+    function getWood(bytes32 _buildingHash) external view returns (uint256);
+    function getStone(bytes32 _buildingHash) external view returns (uint256);
+    function getHash(uint256 _nonce) external view returns (bytes32);
+    function getIndexLength() external view returns (uint256);
     function transferOwnership(address newOwner) external;
 }

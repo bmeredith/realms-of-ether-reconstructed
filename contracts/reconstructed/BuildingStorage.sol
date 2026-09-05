@@ -50,7 +50,8 @@ contract BuildingStorage {
     }
 
     function getActionTimeout(bytes32 _buildingHash)
-        public 
+        public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -58,7 +59,7 @@ contract BuildingStorage {
     }
 
     function createBuilding(bytes32 _buildingHash) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(!exists[_buildingHash]);
@@ -68,7 +69,7 @@ contract BuildingStorage {
     }
 
     function setActionValue(bytes32 _buildingHash, bytes32 _actionValue) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -76,7 +77,7 @@ contract BuildingStorage {
     }
 
     function setActionRate(bytes32 _buildingHash, uint256 _actionRate) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -84,7 +85,7 @@ contract BuildingStorage {
     }
 
     function setAction(bytes32 _buildingHash, uint256 _action) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -92,7 +93,8 @@ contract BuildingStorage {
     }
 
     function getActionRate(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -100,7 +102,8 @@ contract BuildingStorage {
     }
 
     function getName(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (bytes16)
     { 
         require(exists[_buildingHash]);
@@ -108,14 +111,15 @@ contract BuildingStorage {
     }
 
     function getHash(uint256 _nonce) 
-        public 
+        public
+        view
         returns (bytes32)
     { 
         return buildingHashes[_nonce];
     }
 
     function setStone(bytes32 _buildingHash, uint256 _amount) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -123,7 +127,7 @@ contract BuildingStorage {
     }
 
     function setGold(bytes32 _buildingHash, uint256 _amount) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -131,7 +135,7 @@ contract BuildingStorage {
     }
 
     function setActionTimeout(bytes32 _buildingHash, uint256 _actionTimeout) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -139,7 +143,7 @@ contract BuildingStorage {
     }
 
     function setWood(bytes32 _buildingHash, uint256 _amount) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -147,7 +151,8 @@ contract BuildingStorage {
     }
 
     function getAction(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -155,7 +160,8 @@ contract BuildingStorage {
     }
 
     function getWood(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -163,14 +169,16 @@ contract BuildingStorage {
     }
 
     function getIndexLength() 
-        public 
+        public
+        view
         returns (uint256)
     { 
         return buildingHashes.length;
     }
 
     function getStone(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -179,6 +187,7 @@ contract BuildingStorage {
 
     function getGold(bytes32 _buildingHash) 
         public
+        view
         returns (uint256)
     { 
         require(exists[_buildingHash]);
@@ -186,7 +195,7 @@ contract BuildingStorage {
     }
 
     function transferOwnership(address newOwner) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(newOwner != address(0));
@@ -195,7 +204,7 @@ contract BuildingStorage {
     }
 
     function setName(bytes32 _buildingHash, bytes16 _name) 
-        public 
+        public
     { 
         require(msg.sender == owner);
         require(exists[_buildingHash]);
@@ -204,7 +213,8 @@ contract BuildingStorage {
     }
 
     function getActionValue(bytes32 _buildingHash) 
-        public 
+        public
+        view
         returns (bytes32)
     { 
         require(exists[_buildingHash]);

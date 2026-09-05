@@ -127,7 +127,6 @@ library FortressStorageProxy {
         uint256 _amount
     ) 
         public
-        view
     { 
         IFortressStorage(_fortressStorage)
             .setTroups(_fortressHash, _troupHash, _amount);
