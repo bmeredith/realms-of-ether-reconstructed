@@ -25,6 +25,7 @@ library BuildingStorageProxy {
         bytes32 _buildingHash
     ) 
         public
+        view
         returns (
             bytes16,
             uint256,
@@ -47,6 +48,7 @@ library BuildingStorageProxy {
         uint256 _nonce
     ) 
         public
+        view
         returns (bytes32)
     { 
         return IBuildingStorage(_buildingStorage).getHash(_nonce);
@@ -79,6 +81,7 @@ library BuildingStorageProxy {
 
     function getIndexLength(address _buildingStorage) 
         public
+        view
         returns (uint256)
     { 
         return IBuildingStorage(_buildingStorage).getIndexLength();
@@ -89,6 +92,7 @@ library BuildingStorageProxy {
         bytes32 _buildingHash
     ) 
         public
+        view
         returns (uint256, uint256, uint256)
     { 
         return (

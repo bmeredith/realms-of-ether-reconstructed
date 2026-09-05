@@ -16,6 +16,7 @@ import {ITroupStorage} from "./interfaces/ITroupStorage.sol";
 library TroupStorageProxy {
     function getTroup(address _troupStorage, bytes32 _troupHash)
         public
+        view
         returns (
             bytes16,
             uint256,
@@ -66,6 +67,7 @@ library TroupStorageProxy {
 
     function getHash(address _troupStorage, uint256 _nonce) 
         public
+        view
         returns (bytes32)
     {
         return ITroupStorage(_troupStorage).getHash(_nonce);
@@ -73,6 +75,7 @@ library TroupStorageProxy {
 
     function getIndexLength(address _troupStorage) 
         public
+        view
         returns (uint256)
     { 
         return ITroupStorage(_troupStorage).getIndexLength();
@@ -82,6 +85,7 @@ library TroupStorageProxy {
     /// compared to the (gold, wood, stone) ordering used elsewhere in the codebase
     function getCosts(address _troupStorage, bytes32 _troupHash) 
         public
+        view
         returns (uint256, uint256, uint256)
     { 
         return (

@@ -19,6 +19,7 @@ library FortressStorageProxy {
         address _user
     ) 
         public
+        view
         returns (uint256)
     {
         return IFortressStorage(_fortressStorage).getIndexLength(_user);
@@ -29,6 +30,7 @@ library FortressStorageProxy {
         bytes32 _fortressHash
     ) 
         public
+        view
         returns (
             bytes16,
             address,
@@ -71,6 +73,7 @@ library FortressStorageProxy {
 
     function getFortressesAvailable(address _fortressStorage)
         public
+        view
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getFortressesAvailable();
@@ -78,6 +81,7 @@ library FortressStorageProxy {
 
     function getFortressCount(address _fortressStorage) 
         public
+        view
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getFortressCount();
@@ -89,6 +93,7 @@ library FortressStorageProxy {
         bytes32 _buildingHash
     ) 
         public
+        view
         returns (
             uint256,
             uint256
@@ -108,6 +113,7 @@ library FortressStorageProxy {
         uint256 _index
     ) 
         public
+        view
         returns (bytes32)
     { 
         return IFortressStorage(_fortressStorage)
@@ -121,6 +127,7 @@ library FortressStorageProxy {
         uint256 _amount
     ) 
         public
+        view
     { 
         IFortressStorage(_fortressStorage)
             .setTroups(_fortressHash, _troupHash, _amount);
@@ -131,6 +138,7 @@ library FortressStorageProxy {
         bytes32 _fortressHash
     ) 
         public
+        view
         returns (
             uint256,
             uint256,
@@ -149,6 +157,7 @@ library FortressStorageProxy {
         bytes32 _fortressHash
     ) 
         public
+        view
         returns (address)
     { 
         return IFortressStorage(_fortressStorage).getOwner(_fortressHash);
@@ -260,6 +269,7 @@ library FortressStorageProxy {
         bytes32 _troupHash
     ) 
         public
+        view
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getTroups(_fortressHash, _troupHash);
