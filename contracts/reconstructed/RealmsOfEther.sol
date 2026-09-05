@@ -11,27 +11,88 @@ import "./TroupStorageProxy.sol";
 /// @title Main game contract for Realms of Ether (https://www.realmsofether.com)
 /// @notice Reconstructed by wilt.eth/@wilty_stilty
 ///
+/// @notice Realms of Ether is an on-chain strategy game. Players buy fortresses,
+/// which produce gold, stone and wood, spend those resources to build and level
+/// up buildings, train troups, and trade fortresses via a built-in auction.
+/// All game state lives in three separate storage contracts (FortressStorage,
+/// BuildingStorage, TroupStorage). This contract holds the rules and reaches
+/// the storage through three delegatecall'd libraries (FortressStorageProxy,
+/// BuildingStorageProxy, TroupStorageProxy), so the game logic could be
+/// replaced via upgradeGame() without migrating state.
+///
+/// Why only 500 fortresses exist: Realms of Ether was designed to start with
+/// 1,000 fortresses and add one every 15 minutes after minting began. But 
+/// FortressStorage.createFortress checks getFortressesAvailable() > getFortressCount()
+/// and getFortressesAvailable() is already "supply minus minted". Requiring it 
+/// to exceed the minted count means minting stops at half the supply: 500. 
+/// Minting was never started (genesisTime is still 0), so the cap never grew.
+///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
 contract RealmsOfEther is Pausable {
     using SafeMath for uint256;
-
+    
+    /// @dev Monotonic counter mixed into every fortress/building/troup hash
     uint256 nonce;
+
+    /// @notice Address of the FortressStorage contract.
     address public fortressStorage;
+
+    /// @notice Address of the BuildingStorage contract.
     address public buildingStorage;
+
+    /// @notice Address of the TroupStorage contract.
     address public troupStorage;
+
+    /// @notice keccak256("Gold"), set in the constructor. Buildings whose
+    /// actionValue equals this hash produce gold.
     bytes32 public goldHash;
+
+    /// @notice keccak256("Wood").
     bytes32 public woodHash;
+
+    /// @notice keccak256("Stone").
     bytes32 public stoneHash;
+
+    /// @notice Timestamp at which bidding closes (start + 3 days).
     mapping(bytes32 => uint256) public auctionEnd;
+
+    /// @notice The player who put the fortress up for auction and who
+    /// receives the winning bid.
     mapping(bytes32 => address) public auctionOwner;
+
+    /// @notice Current highest cumulative bid in wei.
     mapping(bytes32 => uint256) public highestBid;
+
+    /// @notice Address holding the highest bid. Initialised to the auction
+    /// owner so an auction with no bids ends by returning the fortress.
     mapping(bytes32 => address) public highestBidder;
+
+    /// @notice Every auction a user has started or bid on, in order. Entries
+    /// are never removed.
     mapping(address => bytes32[]) public userAuctions;
+
+    /// @notice Cumulative amount a bidder has locked in an auction, keyed by
+    /// keccak256(fortressHash, bidder). See getAuctionAmount for the
+    /// convenience accessor.
     mapping(bytes32 => uint256) public balanceAuction;
+
+    /// @notice Total wei a user has locked across all auctions (bids minus
+    /// withdrawals plus proceeds from auctions they won or sold).
     mapping(address => uint256) public balances;
+
+    /// @notice Sum of all balances; everything above this in the contract's
+    /// ETH balance is fortress-sale income and the 1% bid fee, withdrawable
+    /// by the owner via withdrawExcess.
     uint256 public totalBalance;
+
+    /// @notice Every auction ever started, in order.
     bytes32[] public auctions;
+
+    // Map placement. New fortresses are placed on a square spiral walking
+    // outward from the origin: (0,0), (1,0), (1,-1), (0,-1), (-1,-1), ...
+    // x/y is the coordinate the next fortress will receive, dx/dy the
+    // current direction of travel. Names chosen by the reconstructor;
     int256 x = 0;
     int256 y = 0;
     int256 dx = 0;
@@ -60,10 +121,13 @@ contract RealmsOfEther is Pausable {
 
     function requireFortressOwner(bytes32 _fortressHash)
         internal
+        view
     {
         require(FortressStorageProxy.getOwner(fortressStorage, _fortressHash) == msg.sender);
     }
 
+    /// @notice Raise a building one level. Cost is the building's base cost
+    /// multiplied by the new level, deducted from the fortress's resources.
     function createFortress(bytes16 _name)
         public
         payable
@@ -74,6 +138,8 @@ contract RealmsOfEther is Pausable {
         bytes32 fortressHash = keccak256(msg.sender, _name, nonce);
         FortressStorageProxy.createFortress(fortressStorage, fortressHash, _name, x, y, 200, 400, 500, 0, msg.sender);
 
+        // Faithful to the original: the position is advanced before the
+        // event, so the event carries the coordinates of the next fortress.
         updatePosition();
 
         LogFortressCreated(_name, fortressHash, msg.sender, x, y);
@@ -81,7 +147,7 @@ contract RealmsOfEther is Pausable {
     }
 
     // Square-spiral walk over the map.
-    function updatePosition() 
+    function updatePosition()
         internal
     {
         if (x == y || (x < 0 && x == -y) || (x > 0 && x == 1 - y)) {
@@ -127,7 +193,7 @@ contract RealmsOfEther is Pausable {
         return FortressStorageProxy.getFortress(fortressStorage, _fortressHash);
     }
 
-    function getResources(bytes32 _fortressHash) 
+    function getResources(bytes32 _fortressHash)
         public
         view
         returns (
@@ -296,6 +362,15 @@ contract RealmsOfEther is Pausable {
         LogBuild(_fortressHash, _buildingHash);
     }
 
+    /// @notice Trigger a building's action once its timeout has passed.
+    ///
+    /// action == 1: produce (level + 1) * actionRate of the resource named
+    /// by actionValue (goldHash / stoneHash / woodHash).
+    ///
+    /// action == 2: train (level * actionRate + 1) units of the troup whose
+    /// hash is actionValue, paying that troup's cost per unit.
+    ///
+    /// In both cases the building is then locked for actionTimeout hours.
     function buildingAction(
         bytes32 _fortressHash,
         bytes32 _buildingHash
@@ -458,6 +533,9 @@ contract RealmsOfEther is Pausable {
         return TroupStorageProxy.getIndexLength(troupStorage);
     }
 
+    /// @notice Escrow a fortress into this contract and open a 3-day auction.
+    /// The seller is recorded as the initial highest bidder with a bid of 0,
+    /// so an auction with no bids can be closed by the seller via endAuction.
     function startAuction(bytes32 _fortressHash)
         public
         whenNotPaused
@@ -474,6 +552,10 @@ contract RealmsOfEther is Pausable {
         auctions.push(_fortressHash);
     }
 
+    /// @notice Bid on an open auction. Bids are cumulative per bidder; 1% of
+    /// each payment is kept as a fee, the rest is credited to the bidder's
+    /// balance and locked. A bidder becomes highest bidder once their total
+    /// exceeds the current high bid by at least 0.01 ETH.
     function bidAuction(bytes32 _fortressHash)
         public
         payable
@@ -482,7 +564,7 @@ contract RealmsOfEther is Pausable {
         require(now < auctionEnd[_fortressHash]);
         require(now > auctionEnd[_fortressHash].sub(3 days));
 
-        uint256 fee = msg.value.div(100).mul(1);
+        uint256 fee = msg.value.div(100).mul(1); // 1% fee
         uint256 amount = msg.value.sub(fee);
         bytes32 hash = keccak256(_fortressHash, msg.sender);
 
@@ -500,6 +582,9 @@ contract RealmsOfEther is Pausable {
         }
     }
 
+    /// @notice Called by the winner after the auction closes: takes ownership
+    /// of the fortress and moves the winning amount from the winner's balance
+    /// to the seller's, where it can be withdrawn like any other bid.
     function endAuction(bytes32 _fortressHash)
         public
         whenNotPaused
@@ -519,6 +604,7 @@ contract RealmsOfEther is Pausable {
         balances[auctionOwner[_fortressHash]] = balances[auctionOwner[_fortressHash]].add(highestBid[_fortressHash]);
     }
 
+    /// @notice Reclaim a losing bid (or sale proceeds) after the auction closes.
     function withdraw(bytes32 _fortressHash)
         public
         whenNotPaused
@@ -536,6 +622,8 @@ contract RealmsOfEther is Pausable {
         msg.sender.transfer(amount);
     }
 
+    /// @notice Owner withdraws everything not owed to players: fortress
+    /// purchase prices and the 1% bid fees.
     function withdrawExcess(address _withdraw)
         public
         onlyOwner
@@ -555,7 +643,7 @@ contract RealmsOfEther is Pausable {
         return balanceAuction[hash];
     }
 
-    function getAuctionsLength() 
+    function getAuctionsLength()
         public
         view
         returns (uint256)
@@ -571,6 +659,8 @@ contract RealmsOfEther is Pausable {
         return userAuctions[_user].length;
     }
 
+    /// @notice Hand all three storage contracts to a new game contract.
+    /// After this call the current contract can no longer write game state.
     function upgradeGame(address _newContract)
         public
         onlyOwner
