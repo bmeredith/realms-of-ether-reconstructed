@@ -8,4 +8,18 @@ auto_detect_solc = false
 optimizer = false
 evm_version = "byzantium"
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[profile.game]
+src = "contracts/reconstructed"
+out = "out"
+libs = ["lib"]
+solc = "bin/solc/solc-0.4.18"
+solc_version = "0.4.18"
+auto_detect_solc = false
+optimizer = true
+optimizer_runs = 200
+evm_version = "byzantium"
+libraries = [
+  "contracts/reconstructed/FortressStorageProxy.sol:FortressStorageProxy:0xe5ef9a283508bbfd11d5379efc4146a4e4a26b8a",
+  "contracts/reconstructed/BuildingStorageProxy.sol:BuildingStorageProxy:0xb939a1d96dda7271d6d89eaceabd9163d0502165",
+  "contracts/reconstructed/TroupStorageProxy.sol:TroupStorageProxy:0x902904b1833def4aef05b99cea93cc3383cd2d4a",
+]

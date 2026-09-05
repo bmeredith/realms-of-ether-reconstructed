@@ -13,10 +13,9 @@ import {IBuildingStorage} from "./interfaces/IBuildingStorage.sol";
 ///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
-contract BuildingStorageProxy {
+library BuildingStorageProxy {
     function upgrade(address proxy, address implementation) 
-        public 
-        payable 
+        public
     { 
         IBuildingStorage(proxy).transferOwnership(implementation);
     }
@@ -25,8 +24,7 @@ contract BuildingStorageProxy {
         address _buildingStorage, 
         bytes32 _buildingHash
     ) 
-        public 
-        payable 
+        public
         returns (
             bytes16,
             uint256,
@@ -48,8 +46,7 @@ contract BuildingStorageProxy {
         address _buildingStorage, 
         uint256 _nonce
     ) 
-        public 
-        payable 
+        public
         returns (bytes32)
     { 
         return IBuildingStorage(_buildingStorage).getHash(_nonce);
@@ -67,8 +64,7 @@ contract BuildingStorageProxy {
         uint256 _wood, 
         uint256 _stone
     ) 
-        public 
-        payable 
+        public
     { 
         IBuildingStorage(_buildingStorage).createBuilding(_buildingHash);
         IBuildingStorage(_buildingStorage).setName(_buildingHash, _name);
@@ -82,8 +78,7 @@ contract BuildingStorageProxy {
     }
 
     function getIndexLength(address _buildingStorage) 
-        public 
-        payable 
+        public
         returns (uint256)
     { 
         return IBuildingStorage(_buildingStorage).getIndexLength();
@@ -93,8 +88,7 @@ contract BuildingStorageProxy {
         address _buildingStorage,
         bytes32 _buildingHash
     ) 
-        public 
-        payable 
+        public
         returns (uint256, uint256, uint256)
     { 
         return (
@@ -102,9 +96,5 @@ contract BuildingStorageProxy {
             IBuildingStorage(_buildingStorage).getStone(_buildingHash),
             IBuildingStorage(_buildingStorage).getWood(_buildingHash)
         );
-    }
-
-    function() public payable {
-        revert();
     }
 }

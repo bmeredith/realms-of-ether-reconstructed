@@ -13,11 +13,9 @@ import {ITroupStorage} from "./interfaces/ITroupStorage.sol";
 ///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
-
-contract TroupStorageProxy {
+library TroupStorageProxy {
     function getTroup(address _troupStorage, bytes32 _troupHash)
         public
-        payable
         returns (
             bytes16,
             uint256,
@@ -47,8 +45,7 @@ contract TroupStorageProxy {
         uint256 _wood, 
         uint256 _stone
     ) 
-        public 
-        payable
+        public
     { 
         ITroupStorage(_troupStorage).createTroup(_troupHash);
         ITroupStorage(_troupStorage).setName(_troupHash, _name);
@@ -62,23 +59,20 @@ contract TroupStorageProxy {
     }
 
     function upgrade(address proxy, address implementation) 
-        public 
-        payable
+        public
     { 
         ITroupStorage(proxy).transferOwnership(implementation);
     }
 
     function getHash(address _troupStorage, uint256 _nonce) 
-        public 
-        payable
+        public
         returns (bytes32)
     {
         return ITroupStorage(_troupStorage).getHash(_nonce);
     }
 
     function getIndexLength(address _troupStorage) 
-        public 
-        payable
+        public
         returns (uint256)
     { 
         return ITroupStorage(_troupStorage).getIndexLength();
@@ -87,8 +81,7 @@ contract TroupStorageProxy {
     /// @dev Returns (gold, stone, wood) — note stone and wood are swapped
     /// compared to the (gold, wood, stone) ordering used elsewhere in the codebase
     function getCosts(address _troupStorage, bytes32 _troupHash) 
-        public 
-        payable
+        public
         returns (uint256, uint256, uint256)
     { 
         return (
@@ -96,9 +89,5 @@ contract TroupStorageProxy {
             ITroupStorage(_troupStorage).getStone(_troupHash),
             ITroupStorage(_troupStorage).getWood(_troupHash)
         );
-    }
-
-    function() public payable {
-        revert();
     }
 }

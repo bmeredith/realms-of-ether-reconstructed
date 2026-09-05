@@ -13,13 +13,12 @@ import {IFortressStorage} from "./interfaces/IFortressStorage.sol";
 ///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
-contract FortressStorageProxy {
+library FortressStorageProxy {
     function getIndexLength(
         address _fortressStorage, 
         address _user
     ) 
         public
-        payable 
         returns (uint256)
     {
         return IFortressStorage(_fortressStorage).getIndexLength(_user);
@@ -29,8 +28,7 @@ contract FortressStorageProxy {
         address _fortressStorage, 
         bytes32 _fortressHash
     ) 
-        public 
-        payable 
+        public
         returns (
             bytes16,
             address,
@@ -56,8 +54,7 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         address _newOwner
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setOwner(_fortressHash, _newOwner);
     }
@@ -67,23 +64,20 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         uint256 _amount
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setGold(_fortressHash, _amount);
     }
 
     function getFortressesAvailable(address _fortressStorage)
-        public 
-        payable 
+        public
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getFortressesAvailable();
     }
 
     function getFortressCount(address _fortressStorage) 
-        public 
-        payable 
+        public
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getFortressCount();
@@ -94,8 +88,7 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         bytes32 _buildingHash
     ) 
-        public 
-        payable 
+        public
         returns (
             uint256,
             uint256
@@ -115,7 +108,6 @@ contract FortressStorageProxy {
         uint256 _index
     ) 
         public
-        payable 
         returns (bytes32)
     { 
         return IFortressStorage(_fortressStorage)
@@ -128,8 +120,7 @@ contract FortressStorageProxy {
         bytes32 _troupHash, 
         uint256 _amount
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage)
             .setTroups(_fortressHash, _troupHash, _amount);
@@ -139,8 +130,7 @@ contract FortressStorageProxy {
         address _fortressStorage, 
         bytes32 _fortressHash
     ) 
-        public 
-        payable 
+        public
         returns (
             uint256,
             uint256,
@@ -158,8 +148,7 @@ contract FortressStorageProxy {
         address _fortressStorage, 
         bytes32 _fortressHash
     ) 
-        public 
-        payable 
+        public
         returns (address)
     { 
         return IFortressStorage(_fortressStorage).getOwner(_fortressHash);
@@ -176,8 +165,7 @@ contract FortressStorageProxy {
         uint256 _wood, 
         uint256 _level
     )
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setGold(_fortressHash, _gold);
         IFortressStorage(_fortressStorage).setStone(_fortressHash, _stone);
@@ -191,15 +179,13 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         uint256 _amount
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setStone(_fortressHash, _amount);
     }
 
     function upgrade(address proxy, address implementation)
-        public 
-        payable 
+        public
     { 
         IFortressStorage(proxy).transferOwnership(implementation);
     }
@@ -209,8 +195,7 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         uint256 _amount
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setWood(_fortressHash, _amount);
     }
@@ -222,8 +207,7 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         address _newOwner
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).setOwner(_fortressHash, _newOwner);
     }
@@ -240,8 +224,7 @@ contract FortressStorageProxy {
         uint256 _wins, 
         address _user
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).createFortress(_fortressHash, _user);
         IFortressStorage(_fortressStorage).setName(_fortressHash, _name);
@@ -254,8 +237,7 @@ contract FortressStorageProxy {
     }
 
     function startMinting(address _fortressStorage) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage).startMinting();
     }
@@ -266,8 +248,7 @@ contract FortressStorageProxy {
         bytes32 _buildingHash, 
         uint256 _timeout
     ) 
-        public 
-        payable 
+        public
     { 
         IFortressStorage(_fortressStorage)
             .setBuildingTimeout(_fortressHash, _buildingHash, _timeout);
@@ -278,14 +259,9 @@ contract FortressStorageProxy {
         bytes32 _fortressHash, 
         bytes32 _troupHash
     ) 
-        public 
-        payable 
+        public
         returns (uint256)
     { 
         return IFortressStorage(_fortressStorage).getTroups(_fortressHash, _troupHash);
-    }
-
-    function() public payable {
-        revert();
     }
 }
