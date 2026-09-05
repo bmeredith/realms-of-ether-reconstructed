@@ -74,6 +74,7 @@ contract FortressStorage {
 
     function getFortressCount()
         public
+        view
         returns (uint256)
     {
         return fortressHashes.length;
@@ -81,6 +82,7 @@ contract FortressStorage {
 
     function totalSupply()
         public
+        view
         returns (uint256)
     {
         if (genesisTime == 0) {
@@ -104,6 +106,7 @@ contract FortressStorage {
 
     function getY(bytes32 _fortressHash)
         public
+        view
         returns (int256)
     {
         require(fortressExists[_fortressHash]);
@@ -115,6 +118,7 @@ contract FortressStorage {
         bytes32 _buildingHash
     )
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -157,6 +161,7 @@ contract FortressStorage {
 
     function getFortressesAvailable()
         public
+        view
         returns (uint256)
     {
         return totalSupply().sub(getFortressCount());
@@ -164,6 +169,7 @@ contract FortressStorage {
 
     function getName(bytes32 _fortressHash)
         public
+        view
         returns (bytes16)
     {
         require(fortressExists[_fortressHash]);
@@ -206,6 +212,7 @@ contract FortressStorage {
         bytes32 _troupHash
     )
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -226,6 +233,7 @@ contract FortressStorage {
 
     function balanceOf(address _owner)
         public
+        view
         returns (uint256)
     {
         return ownerFortressesCount[_owner];
@@ -247,6 +255,7 @@ contract FortressStorage {
         uint256 _index
     )
         public
+        view
         returns (bytes32)
     {
         return ownerFortresses[_user][_index];
@@ -289,6 +298,7 @@ contract FortressStorage {
         bytes32 _buildingHash
     )
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -298,6 +308,7 @@ contract FortressStorage {
 
     function getWins(bytes32 _fortressHash)
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -330,6 +341,7 @@ contract FortressStorage {
 
     function getX(bytes32 _fortressHash)
         public
+        view
         returns (int256)
     {
         require(fortressExists[_fortressHash]);
@@ -338,6 +350,7 @@ contract FortressStorage {
 
     function getOwner(bytes32 _fortressHash)
         public
+        view
         returns (address)
     {
         require(fortressExists[_fortressHash]);
@@ -355,6 +368,7 @@ contract FortressStorage {
 
     function getStone(bytes32 _fortressHash)
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -363,6 +377,7 @@ contract FortressStorage {
 
     function getGold(bytes32 _fortressHash)
         public
+        view
         returns (uint256)
     {
         require(fortressExists[_fortressHash]);
@@ -380,6 +395,7 @@ contract FortressStorage {
 
     function getIndexLength(address _user)
         public
+        view
         returns (uint256)
     {
         return ownerFortressesLength[_user];
