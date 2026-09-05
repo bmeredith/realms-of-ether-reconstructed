@@ -16,7 +16,7 @@ contract FortressStorage {
 
     address public owner; // STORAGE[0x0] bytes 0 to 19
     uint256 public genesisTime; // STORAGE[0x1]
-    uint256 stor_2; // STORAGE[0x2] 0x5d694a72
+    uint256 public initalFortressCount; // STORAGE[0x2] 0x5d694a72
     mapping(address => bytes32[]) public ownerFortresses; // STORAGE[0x3]
     mapping(address => uint256) public ownerFortressesLength; // STORAGE[0x4]
     mapping(address => uint256) public ownerFortressesCount; // STORAGE[0x5]
@@ -40,7 +40,7 @@ contract FortressStorage {
 
     function FortressStorage() public {
         owner = msg.sender;
-        stor_2 = 1000;
+        initalFortressCount = 1000;
     }
 
     function _getFortressesAvailable() 
@@ -169,7 +169,7 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        return stor_2;
+        return initalFortressCount;
     }
 
     function setX(
@@ -387,9 +387,9 @@ contract FortressStorage {
         returns (uint256)
     { 
         if (genesisTime != 0) {
-            return stor_2.add((block.timestamp - genesisTime) / 900);
+            return initalFortressCount.add((block.timestamp - genesisTime) / 900);
         } else {
-            return stor_2;
+            return initalFortressCount;
         }
     }
 
