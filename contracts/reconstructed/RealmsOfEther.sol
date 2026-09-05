@@ -131,7 +131,6 @@ contract RealmsOfEther is Pausable {
 
     function requireFortressOwner(bytes32 _fortressHash)
         internal
-        view 
     {
         require(FortressStorageProxy.getOwner(fortressStorage, _fortressHash) == msg.sender);
     }
@@ -144,7 +143,6 @@ contract RealmsOfEther is Pausable {
         require(msg.value >= 10 finney);
 
         bytes32 fortressHash = keccak256(msg.sender, _name, nonce);
-
         FortressStorageProxy.createFortress(fortressStorage, fortressHash, _name, x, y, 200, 400, 500, 0, msg.sender);
 
         updatePosition();
@@ -175,6 +173,7 @@ contract RealmsOfEther is Pausable {
         whenNotPaused
     {
         requireFortressOwner(_fortressHash);
+
         FortressStorageProxy.transfer(fortressStorage, _fortressHash, _newOwner);
     }
 
@@ -216,7 +215,7 @@ contract RealmsOfEther is Pausable {
         bytes32 _buildingHash
     ) 
         public
-        view 
+        view
         returns (
             uint256 _level,
             uint256 _timeout
@@ -288,6 +287,7 @@ contract RealmsOfEther is Pausable {
     {
         bytes32 buildingHash = keccak256(msg.sender, _name, nonce);
         BuildingStorageProxy.createBuilding(buildingStorage, buildingHash, _name, _action, _actionRate, _actionValue, _actionTimeout, _gold, _wood, _stone);
+
         LogBuildingCreated(buildingHash);
         nonce++;
     }
@@ -308,7 +308,7 @@ contract RealmsOfEther is Pausable {
 
     function getBuildingCosts(bytes32 _buildingHash)
         public
-        view 
+        view
         returns (
             uint256 _gold,
             uint256 _stone,
@@ -326,7 +326,11 @@ contract RealmsOfEther is Pausable {
         return BuildingStorageProxy.getHash(buildingStorage, _index);
     }
 
-    function getBuildingIndexLength() public view returns (uint256) {
+    function getBuildingIndexLength()
+        public
+        view
+        returns (uint256)
+    {
         return BuildingStorageProxy.getIndexLength(buildingStorage);
     }
 
@@ -478,6 +482,7 @@ contract RealmsOfEther is Pausable {
     {
         bytes32 troupHash = keccak256(msg.sender, _name, nonce);
         TroupStorageProxy.createTroup(troupStorage, troupHash, _name, _life, _strength, _intelligence, _dexterity, _gold, _wood, _stone);
+
         LogTroupCreated(troupHash);
         nonce++;
     }
