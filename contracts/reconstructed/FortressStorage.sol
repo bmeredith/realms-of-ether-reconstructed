@@ -43,26 +43,26 @@ library SafeMath {
 contract FortressStorage {
     using SafeMath for uint256;
 
-    address public owner; // STORAGE[0x0] bytes 0 to 19
-    uint256 public genesisTime; // STORAGE[0x1]
-    uint256 public initalFortressCount; // STORAGE[0x2] 0x5d694a72
-    mapping(address => bytes32[]) public ownerFortresses; // STORAGE[0x3]
-    mapping(address => uint256) public ownerFortressesLength; // STORAGE[0x4]
-    mapping(address => uint256) public ownerFortressesCount; // STORAGE[0x5]
-    mapping(bytes32 => uint256) public fortressOwnerIndex; // STORAGE[0x6]
-    bytes32[] public fortressHashes; // STORAGE[0x7]
-    mapping(bytes32 => bool) public fortressExists; // STORAGE[0x8]
-    mapping(bytes32 => bytes16) internal names; // STORAGE[0x9]
-    mapping(bytes32 => address) internal fortressOwner; // STORAGE[0xa]
-    mapping(bytes32 => int256) internal x; // STORAGE[0xb]
-    mapping(bytes32 => int256) internal y; // STORAGE[0xc]
-    mapping(bytes32 => uint256) internal gold; // STORAGE[0xd]
-    mapping(bytes32 => uint256) internal wood; // STORAGE[0xe]
-    mapping(bytes32 => uint256) internal stone; // STORAGE[0xf]
-    mapping(bytes32 => uint256) internal troups; // STORAGE[0x10]
-    mapping(bytes32 => uint256) internal unused; // STORAGE[0x11]
-    mapping(bytes32 => uint256) internal buildingLevel; // STORAGE[0x12]
-    mapping(bytes32 => uint256) internal buildingTimeout; // STORAGE[0x13]
+    address public owner;
+    uint256 public genesisTime;
+    uint256 public initalFortressCount;
+    mapping(address => bytes32[]) public ownerFortresses;
+    mapping(address => uint256) public ownerFortressesLength;
+    mapping(address => uint256) public ownerFortressesCount;
+    mapping(bytes32 => uint256) public fortressOwnerIndex;
+    bytes32[] public fortressHashes;
+    mapping(bytes32 => bool) public fortressExists;
+    mapping(bytes32 => bytes16) internal names;
+    mapping(bytes32 => address) internal fortressOwner;
+    mapping(bytes32 => int256) internal x;
+    mapping(bytes32 => int256) internal y;
+    mapping(bytes32 => uint256) internal gold;
+    mapping(bytes32 => uint256) internal wood;
+    mapping(bytes32 => uint256) internal stone;
+    mapping(bytes32 => uint256) internal troups;
+    mapping(bytes32 => uint256) internal unused;
+    mapping(bytes32 => uint256) internal buildingLevel;
+    mapping(bytes32 => uint256) internal buildingTimeout;
 
     // Events
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -72,17 +72,17 @@ contract FortressStorage {
         initalFortressCount = 1000;
     }
 
-    function getFortressCount() 
-        public 
+    function getFortressCount()
+        public
         returns (uint256)
-    { 
+    {
         return fortressHashes.length;
     }
 
-    function totalSupply() 
-        public 
+    function totalSupply()
+        public
         returns (uint256)
-    { 
+    {
         if (genesisTime == 0) {
             return initalFortressCount;
         }
@@ -92,42 +92,42 @@ contract FortressStorage {
     }
 
     function setWins(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         uint256 _wins
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         troups[_fortressHash] = _wins;
     }
 
-    function getY(bytes32 _fortressHash) 
-        public 
+    function getY(bytes32 _fortressHash)
+        public
         returns (int256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return y[_fortressHash];
     }
 
     function getBuildingLevel(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         bytes32 _buildingHash
-    ) 
-        public 
+    )
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _buildingHash);
         return buildingLevel[hash];
     }
 
     function createFortress(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         address _user
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(getFortressesAvailable() > getFortressCount());
         require(!fortressExists[_fortressHash]);
@@ -143,12 +143,12 @@ contract FortressStorage {
     }
 
     function setTroups(
-        bytes32 _fortressHash, 
-        bytes32 _troupHash, 
+        bytes32 _fortressHash,
+        bytes32 _troupHash,
         uint256 _amount
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _troupHash);
@@ -156,26 +156,26 @@ contract FortressStorage {
     }
 
     function getFortressesAvailable()
-        public 
+        public
         returns (uint256)
-    { 
+    {
         return totalSupply().sub(getFortressCount());
     }
 
-    function getName(bytes32 _fortressHash) 
-        public 
+    function getName(bytes32 _fortressHash)
+        public
         returns (bytes16)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return names[_fortressHash];
     }
 
     function setOwner(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         address _newOwner
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
 
@@ -191,206 +191,206 @@ contract FortressStorage {
     }
 
     function setX(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         int256 _x
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         x[_fortressHash] = _x;
     }
 
     function getTroups(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         bytes32 _troupHash
-    ) 
-        public 
+    )
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _troupHash);
         return troups[hash];
     }
 
     function setStone(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         uint256 _amount
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         stone[_fortressHash] = _amount;
     }
 
-    function balanceOf(address _owner) 
-        public 
-        returns (uint256) 
+    function balanceOf(address _owner)
+        public
+        returns (uint256)
     {
         return ownerFortressesCount[_owner];
     }
 
     function setGold(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         uint256 _amount
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         gold[_fortressHash] = _amount;
     }
 
     function getHashFromIndex(
-        address _user, 
+        address _user,
         uint256 _index
-    ) 
-        public 
+    )
+        public
         returns (bytes32)
-    { 
+    {
         return ownerFortresses[_user][_index];
     }
 
     function setBuildingLevel(
-        bytes32 _fortressHash, 
-        bytes32 _buildingHash, 
+        bytes32 _fortressHash,
+        bytes32 _buildingHash,
         uint256 _level
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _buildingHash);
         buildingLevel[hash] = _level;
     }
 
-    function startMinting() 
-        public 
-    { 
+    function startMinting()
+        public
+    {
         require(msg.sender == owner);
         require(genesisTime == 0);
         genesisTime = block.timestamp;
     }
 
     function setWood(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         uint256 _amount
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         wood[_fortressHash] = _amount;
     }
 
     function getBuildingTimeout(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         bytes32 _buildingHash
     )
-        public 
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _buildingHash);
         return buildingTimeout[hash];
     }
 
-    function getWins(bytes32 _fortressHash) 
-        public 
+    function getWins(bytes32 _fortressHash)
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return troups[_fortressHash];
     }
 
     function setY(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         int256 _y
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         y[_fortressHash] = _y;
     }
 
     function setBuildingTimeout(
-        bytes32 _fortressHash, 
-        bytes32 _buildingHash, 
+        bytes32 _fortressHash,
+        bytes32 _buildingHash,
         uint256 _timeout
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         bytes32 hash = keccak256(_fortressHash, _buildingHash);
         buildingTimeout[hash] = _timeout;
     }
 
-    function getX(bytes32 _fortressHash) 
-        public 
+    function getX(bytes32 _fortressHash)
+        public
         returns (int256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return x[_fortressHash];
     }
 
-    function getOwner(bytes32 _fortressHash) 
-        public 
+    function getOwner(bytes32 _fortressHash)
+        public
         returns (address)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return fortressOwner[_fortressHash];
     }
 
-    function getWood(bytes32 _fortressHash) 
-        public 
+    function getWood(bytes32 _fortressHash)
+        public
         view
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return wood[_fortressHash];
     }
 
-    function getStone(bytes32 _fortressHash) 
-        public 
+    function getStone(bytes32 _fortressHash)
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return stone[_fortressHash];
     }
 
-    function getGold(bytes32 _fortressHash) 
-        public 
+    function getGold(bytes32 _fortressHash)
+        public
         returns (uint256)
-    { 
+    {
         require(fortressExists[_fortressHash]);
         return gold[_fortressHash];
     }
 
-    function transferOwnership(address newOwner) 
-        public 
-    { 
+    function transferOwnership(address newOwner)
+        public
+    {
         require(msg.sender == owner);
         require(newOwner != address(0));
         OwnershipTransferred(owner, newOwner);
         owner = newOwner;
     }
 
-    function getIndexLength(address _user) 
-        public 
+    function getIndexLength(address _user)
+        public
         returns (uint256)
-    { 
+    {
         return ownerFortressesLength[_user];
     }
 
     function setName(
-        bytes32 _fortressHash, 
+        bytes32 _fortressHash,
         bytes16 _name
-    ) 
-        public 
-    { 
+    )
+        public
+    {
         require(msg.sender == owner);
         require(fortressExists[_fortressHash]);
         names[_fortressHash] = _name;
