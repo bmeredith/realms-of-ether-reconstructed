@@ -4,13 +4,8 @@ import "./FortressStorageProxy.sol";
 import "./BuildingStorageProxy.sol";
 import "./TroupStorageProxy.sol";
 
-/// @title RealmsOfEther main game contract for Realms of Ether (https://www.realmsofether.com)
+/// @title Main game contract for Realms of Ether (https://www.realmsofether.com)
 /// @notice Reconstructed by wilt.eth/@wilty_stilty
-///
-/// @notice Persistent on-chain storage contract for Buildings in Realms of Ether.
-/// Stores build costs (gold, wood, stone) and action attributes for each building,
-/// keyed by a bytes32 hash identifier. Buildings can either be mined for resources
-/// or used to recruit troups, each on a timed interval.
 ///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
@@ -119,7 +114,13 @@ contract RealmsOfEther is Pausable {
     event LogBuildingCreated(bytes32 buildingHash);
     event LogTroupCreated(bytes32 troupHash);
 
-    function RealmsOfEther(address _fortressStorage, address _troupStorage, address _buildingStorage) public {
+    function RealmsOfEther(
+        address _fortressStorage,
+        address _troupStorage,
+        address _buildingStorage
+    )
+        public
+    {
         fortressStorage = _fortressStorage;
         troupStorage = _troupStorage;
         buildingStorage = _buildingStorage;
@@ -128,68 +129,147 @@ contract RealmsOfEther is Pausable {
         stoneHash = keccak256("Stone");
     }
 
-    function requireFortressOwner(bytes32 _fortressHash) internal view {
+    function requireFortressOwner(bytes32 _fortressHash)
+        internal
+        view 
+    {
         require(FortressStorageProxy.getOwner(fortressStorage, _fortressHash) == msg.sender);
     }
 
-    function createFortress(bytes16 _name) public payable whenNotPaused {
+    function createFortress(bytes16 _name)
+        public
+        payable
+        whenNotPaused
+    {
         require(msg.value >= 10 finney);
+
         bytes32 fortressHash = keccak256(msg.sender, _name, nonce);
+
         FortressStorageProxy.createFortress(fortressStorage, fortressHash, _name, x, y, 200, 400, 500, 0, msg.sender);
+
         updatePosition();
+
         LogFortressCreated(_name, fortressHash, msg.sender, x, y);
         nonce++;
     }
 
     // Square-spiral walk over the map.
-    function updatePosition() internal {
+    function updatePosition() 
+        internal
+    {
         if (x == y || (x < 0 && x == -y) || (x > 0 && x == 1 - y)) {
             int256 temp = dx;
             dx = -dy;
             dy = temp;
         }
+
         x += dx;
         y += dy;
     }
 
-    function transferFortress(bytes32 _fortressHash, address _newOwner) public whenNotPaused {
+    function transferFortress(
+        bytes32 _fortressHash,
+        address _newOwner
+    )
+        public
+        whenNotPaused
+    {
         requireFortressOwner(_fortressHash);
         FortressStorageProxy.transfer(fortressStorage, _fortressHash, _newOwner);
     }
 
-    function startMinting() public onlyOwner {
+    function startMinting()
+        public
+        onlyOwner
+    {
         FortressStorageProxy.startMinting(fortressStorage);
     }
 
-    function getFortress(bytes32 _fortressHash) public view returns (bytes16 _name, address _owner, int256 _x, int256 _y, uint256 _wins) {
+    function getFortress(bytes32 _fortressHash)
+        public
+        view
+        returns (
+            bytes16 _name,
+            address _owner,
+            int256 _x,
+            int256 _y,
+            uint256 _wins
+        ) 
+    {
         return FortressStorageProxy.getFortress(fortressStorage, _fortressHash);
     }
 
-    function getResources(bytes32 _fortressHash) public view returns (uint256 _gold, uint256 _stone, uint256 _wood) {
+    function getResources(bytes32 _fortressHash) 
+        public
+        view
+        returns (
+            uint256 _gold,
+            uint256 _stone,
+            uint256 _wood
+        )
+    {
         return FortressStorageProxy.getResources(fortressStorage, _fortressHash);
     }
 
-    function getFortressBuilding(bytes32 _fortressHash, bytes32 _buildingHash) public view returns (uint256 _level, uint256 _timeout) {
+    function getFortressBuilding(
+        bytes32 _fortressHash,
+        bytes32 _buildingHash
+    ) 
+        public
+        view 
+        returns (
+            uint256 _level,
+            uint256 _timeout
+        )
+    {
         return FortressStorageProxy.getBuilding(fortressStorage, _fortressHash, _buildingHash);
     }
 
-    function getFortressTroups(bytes32 _fortressHash, bytes32 _troupHash) public view returns (uint256 _amount) {
+    function getFortressTroups(
+        bytes32 _fortressHash,
+        bytes32 _troupHash
+    ) 
+        public
+        view
+        returns (
+            uint256 _amount
+        )
+    {
         return FortressStorageProxy.getTroups(fortressStorage, _fortressHash, _troupHash);
     }
 
-    function getFortressCount() public view returns (uint256) {
+    function getFortressCount() 
+        public
+        view
+        returns (uint256)
+    {
         return FortressStorageProxy.getFortressCount(fortressStorage);
     }
 
-    function getFortressesAvailable() public view returns (uint256) {
+    function getFortressesAvailable()
+        public
+        view
+        returns (uint256)
+    {
         return FortressStorageProxy.getFortressesAvailable(fortressStorage);
     }
 
-    function getHashFromIndex(address _user, uint256 _index) public view returns (bytes32) {
+    function getHashFromIndex(
+        address _user,
+        uint256 _index
+    )
+        public
+        view
+        returns (bytes32)
+    {
         return FortressStorageProxy.getHashFromIndex(fortressStorage, _user, _index);
     }
 
-    function getIndexLength(address _user) public view returns (uint256) {
+    function getIndexLength(address _user)
+        public
+        view
+        returns (uint256)
+    {
         return FortressStorageProxy.getIndexLength(fortressStorage, _user);
     }
 
@@ -212,15 +292,37 @@ contract RealmsOfEther is Pausable {
         nonce++;
     }
 
-    function getBuilding(bytes32 _buildingHash) public view returns (bytes16 _name, uint256 _action, uint256 _actionRate, bytes32 _actionValue, uint256 _actionTimeout) {
+    function getBuilding(bytes32 _buildingHash)
+        public
+        view
+        returns (
+            bytes16 _name,
+            uint256 _action,
+            uint256 _actionRate,
+            bytes32 _actionValue,
+            uint256 _actionTimeout
+        )
+    {
         return BuildingStorageProxy.getBuilding(buildingStorage, _buildingHash);
     }
 
-    function getBuildingCosts(bytes32 _buildingHash) public view returns (uint256 _gold, uint256 _stone, uint256 _wood) {
+    function getBuildingCosts(bytes32 _buildingHash)
+        public
+        view 
+        returns (
+            uint256 _gold,
+            uint256 _stone,
+            uint256 _wood
+        )
+    {
         return BuildingStorageProxy.getCosts(buildingStorage, _buildingHash);
     }
 
-    function getBuildingHash(uint256 _index) public view returns (bytes32) {
+    function getBuildingHash(uint256 _index)
+        public
+        view
+        returns (bytes32)
+    {
         return BuildingStorageProxy.getHash(buildingStorage, _index);
     }
 
@@ -228,7 +330,13 @@ contract RealmsOfEther is Pausable {
         return BuildingStorageProxy.getIndexLength(buildingStorage);
     }
 
-    function build(bytes32 _fortressHash, bytes32 _buildingHash) public whenNotPaused {
+    function build(
+        bytes32 _fortressHash,
+        bytes32 _buildingHash
+    ) 
+        public
+        whenNotPaused
+    {
         requireFortressOwner(_fortressHash);
 
         uint256 gold;
@@ -255,7 +363,13 @@ contract RealmsOfEther is Pausable {
         LogBuild(_fortressHash, _buildingHash);
     }
 
-    function buildingAction(bytes32 _fortressHash, bytes32 _buildingHash) public whenNotPaused {
+    function buildingAction(
+        bytes32 _fortressHash,
+        bytes32 _buildingHash
+    )
+        public
+        whenNotPaused 
+    {
         requireFortressOwner(_fortressHash);
 
         uint256 level;
@@ -339,7 +453,13 @@ contract RealmsOfEther is Pausable {
         FortressStorageProxy.setTroups(fortressStorage, _fortressHash, _actionValue, _troups.add(amount));
     }
 
-    function setBuildingTimeout(bytes32 _fortressHash, bytes32 _buildingHash, uint256 _actionTimeout) internal {
+    function setBuildingTimeout(
+        bytes32 _fortressHash,
+        bytes32 _buildingHash,
+        uint256 _actionTimeout
+    ) 
+        internal
+    {
         FortressStorageProxy.setBuildingTimeout(fortressStorage, _fortressHash, _buildingHash, now + _actionTimeout * 1 hours);
     }
 
@@ -362,23 +482,52 @@ contract RealmsOfEther is Pausable {
         nonce++;
     }
 
-    function getTroup(bytes32 _troupHash) public view returns (bytes16 _name, uint256 _life, uint256 _strength, uint256 _intelligence, uint256 _dexterity) {
+    function getTroup(bytes32 _troupHash)
+        public
+        view
+        returns (
+            bytes16 _name,
+            uint256 _life,
+            uint256 _strength,
+            uint256 _intelligence, 
+            uint256 _dexterity
+        )
+    {
         return TroupStorageProxy.getTroup(troupStorage, _troupHash);
     }
 
-    function getTroupCosts(bytes32 _troupHash) public view returns (uint256 _gold, uint256 _stone, uint256 _wood) {
+    function getTroupCosts(bytes32 _troupHash)
+        public
+        view
+        returns (
+            uint256 _gold,
+            uint256 _stone,
+            uint256 _wood
+        )
+    {
         return TroupStorageProxy.getCosts(troupStorage, _troupHash);
     }
 
-    function getTroupHash(uint256 _index) public view returns (bytes32) {
+    function getTroupHash(uint256 _index)
+        public
+        view
+        returns (bytes32)
+    {
         return TroupStorageProxy.getHash(troupStorage, _index);
     }
 
-    function getTroupIndexLength() public view returns (uint256) {
+    function getTroupIndexLength()
+        public
+        view
+        returns (uint256)
+    {
         return TroupStorageProxy.getIndexLength(troupStorage);
     }
 
-    function startAuction(bytes32 _fortressHash) public whenNotPaused {
+    function startAuction(bytes32 _fortressHash)
+        public
+        whenNotPaused
+    {
         require(FortressStorageProxy.getOwner(fortressStorage, _fortressHash) == msg.sender);
         FortressStorageProxy.setOwner(fortressStorage, _fortressHash, this);
 
@@ -391,7 +540,11 @@ contract RealmsOfEther is Pausable {
         auctions.push(_fortressHash);
     }
 
-    function bidAuction(bytes32 _fortressHash) public payable whenNotPaused {
+    function bidAuction(bytes32 _fortressHash)
+        public
+        payable
+        whenNotPaused
+    {
         require(now < auctionEnd[_fortressHash]);
         require(now > auctionEnd[_fortressHash].sub(3 days));
 
@@ -413,7 +566,10 @@ contract RealmsOfEther is Pausable {
         }
     }
 
-    function endAuction(bytes32 _fortressHash) public whenNotPaused {
+    function endAuction(bytes32 _fortressHash)
+        public
+        whenNotPaused
+    {
         require(auctionEnd[_fortressHash] <= now);
         require(highestBidder[_fortressHash] == msg.sender);
 
@@ -429,7 +585,10 @@ contract RealmsOfEther is Pausable {
         balances[auctionOwner[_fortressHash]] = balances[auctionOwner[_fortressHash]].add(highestBid[_fortressHash]);
     }
 
-    function withdraw(bytes32 _fortressHash) public whenNotPaused {
+    function withdraw(bytes32 _fortressHash)
+        public
+        whenNotPaused
+    {
         require(auctionEnd[_fortressHash] <= now);
         require(highestBidder[_fortressHash] != msg.sender);
 
@@ -443,24 +602,45 @@ contract RealmsOfEther is Pausable {
         msg.sender.transfer(amount);
     }
 
-    function withdrawExcess(address _withdraw) public onlyOwner {
+    function withdrawExcess(address _withdraw)
+        public
+        onlyOwner
+    {
         _withdraw.transfer(this.balance.sub(totalBalance));
     }
 
-    function getAuctionAmount(bytes32 _fortressHash, address _user) public view returns (uint256) {
+    function getAuctionAmount(
+        bytes32 _fortressHash,
+        address _user
+    )
+        public
+        view
+        returns (uint256)
+    {
         bytes32 hash = keccak256(_fortressHash, _user);
         return balanceAuction[hash];
     }
 
-    function getAuctionsLength() public view returns (uint256) {
+    function getAuctionsLength() 
+        public
+        view
+        returns (uint256)
+    {
         return auctions.length;
     }
 
-    function getUserAuctionsLength(address _user) public view returns (uint256) {
+    function getUserAuctionsLength(address _user)
+        public
+        view
+        returns (uint256)
+    {
         return userAuctions[_user].length;
     }
 
-    function upgradeGame(address _newContract) public onlyOwner {
+    function upgradeGame(address _newContract)
+        public
+        onlyOwner
+    {
         FortressStorageProxy.upgrade(fortressStorage, _newContract);
         BuildingStorageProxy.upgrade(buildingStorage, _newContract);
         TroupStorageProxy.upgrade(troupStorage, _newContract);
