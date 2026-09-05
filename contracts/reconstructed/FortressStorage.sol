@@ -1,7 +1,5 @@
 pragma solidity 0.4.18;
 
-import "./SafeMath.sol";
-
 /// @title FortressStorage for Realms of Ether (https://www.realmsofether.com)
 /// @notice Reconstructed by wilt.eth/@wilty_stilty
 ///
@@ -11,6 +9,37 @@ import "./SafeMath.sol";
 ///
 /// @dev RECONSTRUCTION NOTICE: The original source code for this contract was lost.
 /// This file has been reconstructed in its entirety from the deployed bytecode.
+library SafeMath {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        assert(c / a == b);
+        
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a / b;
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        assert(b <= a);
+
+        return a - b;
+    }
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        assert(c >= a);
+
+        return c;
+    }
+}
+
 contract FortressStorage {
     using SafeMath for uint256;
 
@@ -22,7 +51,7 @@ contract FortressStorage {
     mapping(address => uint256) public ownerFortressesCount; // STORAGE[0x5]
     mapping(bytes32 => uint256) public fortressOwnerIndex; // STORAGE[0x6]
     bytes32[] public fortressHashes; // STORAGE[0x7]
-    mapping(bytes32 => bool) internal exists; // STORAGE[0x8]
+    mapping(bytes32 => bool) public fortressExists; // STORAGE[0x8]
     mapping(bytes32 => bytes16) internal names; // STORAGE[0x9]
     mapping(bytes32 => address) internal fortressOwner; // STORAGE[0xa]
     mapping(bytes32 => int256) internal x; // STORAGE[0xb]
@@ -31,7 +60,7 @@ contract FortressStorage {
     mapping(bytes32 => uint256) internal wood; // STORAGE[0xe]
     mapping(bytes32 => uint256) internal stone; // STORAGE[0xf]
     mapping(bytes32 => uint256) internal troups; // STORAGE[0x10]
-    // STORAGE[0x11] - unknown, may be unused or unreferenced
+    mapping(bytes32 => uint256) internal unused; // STORAGE[0x11]
     mapping(bytes32 => uint256) internal buildingLevel; // STORAGE[0x12]
     mapping(bytes32 => uint256) internal buildingTimeout; // STORAGE[0x13]
 
@@ -41,14 +70,6 @@ contract FortressStorage {
     function FortressStorage() public {
         owner = msg.sender;
         initalFortressCount = 1000;
-    }
-
-    function _getFortressesAvailable() 
-        private 
-        returns (uint256)
-    { 
-        uint256 fortressesRemaining = _fortressesRemaining();
-        return fortressesRemaining - fortressHashes.length;
     }
 
     function getFortressCount() 
@@ -62,7 +83,12 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        return _fortressesRemaining();
+        if (genesisTime == 0) {
+            return initalFortressCount;
+        }
+
+        uint256 timeSinceGenesis = now - genesisTime;
+        return initalFortressCount.add(timeSinceGenesis.div(900));
     }
 
     function setWins(
@@ -72,7 +98,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         troups[_fortressHash] = _wins;
     }
 
@@ -80,7 +106,7 @@ contract FortressStorage {
         public 
         returns (int256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return y[_fortressHash];
     }
 
@@ -91,8 +117,9 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
-        return buildingLevel[keccak256(_fortressHash, _buildingHash)];
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _buildingHash);
+        return buildingLevel[hash];
     }
 
     function createFortress(
@@ -102,12 +129,11 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        uint256 v0 = _getFortressesAvailable();
-        require(v0 > fortressHashes.length);
-        require(!exists[_fortressHash]);
-        
+        require(getFortressesAvailable() > getFortressCount());
+        require(!fortressExists[_fortressHash]);
+
         fortressHashes.push(_fortressHash);
-        exists[_fortressHash] = true;
+        fortressExists[_fortressHash] = true;
         fortressOwner[_fortressHash] = _user;
         ownerFortresses[_user].push(_fortressHash);
 
@@ -124,22 +150,23 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
-        troups[keccak256(_fortressHash, _troupHash)] = _amount;
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _troupHash);
+        troups[hash] = _amount;
     }
 
     function getFortressesAvailable()
         public 
         returns (uint256)
     { 
-        return _getFortressesAvailable();
+        return totalSupply().sub(getFortressCount());
     }
 
     function getName(bytes32 _fortressHash) 
         public 
         returns (bytes16)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return names[_fortressHash];
     }
 
@@ -150,8 +177,8 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
-        assert(fortressOwnerIndex[_fortressHash] < ownerFortresses[fortressOwner[_fortressHash]].length);
+        require(fortressExists[_fortressHash]);
+
         ownerFortresses[fortressOwner[_fortressHash]][fortressOwnerIndex[_fortressHash]] = bytes32(0);
         ownerFortressesCount[fortressOwner[_fortressHash]] = ownerFortressesCount[fortressOwner[_fortressHash]].sub(1);
         fortressOwner[_fortressHash] = _newOwner;
@@ -163,15 +190,6 @@ contract FortressStorage {
         ownerFortressesCount[_newOwner] = ownerFortressesCount[_newOwner].add(1);
     }
 
-    // 0x5d694a72 - this is not the real function name
-    // it was mined to get a collision match of the actual function name for now
-    function genesis30456072818() 
-        public 
-        returns (uint256)
-    { 
-        return initalFortressCount;
-    }
-
     function setX(
         bytes32 _fortressHash, 
         int256 _x
@@ -179,7 +197,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         x[_fortressHash] = _x;
     }
 
@@ -190,8 +208,9 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
-        return troups[keccak256(_fortressHash, _troupHash)];
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _troupHash);
+        return troups[hash];
     }
 
     function setStone(
@@ -201,7 +220,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         stone[_fortressHash] = _amount;
     }
 
@@ -219,7 +238,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         gold[_fortressHash] = _amount;
     }
 
@@ -230,7 +249,6 @@ contract FortressStorage {
         public 
         returns (bytes32)
     { 
-        assert(_index < ownerFortresses[_user].length);
         return ownerFortresses[_user][_index];
     }
 
@@ -242,8 +260,9 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
-        buildingLevel[keccak256(_fortressHash, _buildingHash)] = _level;
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _buildingHash);
+        buildingLevel[hash] = _level;
     }
 
     function startMinting() 
@@ -261,7 +280,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         wood[_fortressHash] = _amount;
     }
 
@@ -272,15 +291,16 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
-        return buildingTimeout[keccak256(_fortressHash, _buildingHash)];
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _buildingHash);
+        return buildingTimeout[hash];
     }
 
     function getWins(bytes32 _fortressHash) 
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return troups[_fortressHash];
     }
 
@@ -291,7 +311,7 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         y[_fortressHash] = _y;
     }
 
@@ -303,38 +323,33 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
-        buildingTimeout[keccak256(_fortressHash, _buildingHash)] = _timeout;
+        require(fortressExists[_fortressHash]);
+        bytes32 hash = keccak256(_fortressHash, _buildingHash);
+        buildingTimeout[hash] = _timeout;
     }
 
     function getX(bytes32 _fortressHash) 
         public 
         returns (int256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return x[_fortressHash];
-    }
-
-    function fortressExists(bytes32 _fortressHash) 
-        public 
-        returns (bool)
-    { 
-        return exists[_fortressHash];
     }
 
     function getOwner(bytes32 _fortressHash) 
         public 
         returns (address)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return fortressOwner[_fortressHash];
     }
 
     function getWood(bytes32 _fortressHash) 
         public 
+        view
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return wood[_fortressHash];
     }
 
@@ -342,7 +357,7 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return stone[_fortressHash];
     }
 
@@ -350,7 +365,7 @@ contract FortressStorage {
         public 
         returns (uint256)
     { 
-        require(exists[_fortressHash]);
+        require(fortressExists[_fortressHash]);
         return gold[_fortressHash];
     }
 
@@ -377,20 +392,8 @@ contract FortressStorage {
         public 
     { 
         require(msg.sender == owner);
-        require(exists[_fortressHash]);
-        
+        require(fortressExists[_fortressHash]);
         names[_fortressHash] = _name;
-    }
-
-    function _fortressesRemaining() 
-        private 
-        returns (uint256)
-    { 
-        if (genesisTime != 0) {
-            return initalFortressCount.add((block.timestamp - genesisTime) / 900);
-        } else {
-            return initalFortressCount;
-        }
     }
 
     function() public payable {
