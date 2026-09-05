@@ -41,8 +41,8 @@ contract FortressStorage {
     using SafeMath for uint256;
 
     address public owner;
-    uint256 public genesisTime;
-    uint256 public initalFortressCount;
+    uint256 public genesisTime = 0; 
+    uint256 public initalFortressCount = 1000;
     mapping(address => bytes32[]) public ownerFortresses;
     mapping(address => uint256) public ownerFortressesLength;
     mapping(address => uint256) public ownerFortressesCount;
@@ -66,7 +66,6 @@ contract FortressStorage {
 
     function FortressStorage() public {
         owner = msg.sender;
-        initalFortressCount = 1000;
     }
 
     function getFortressCount()
